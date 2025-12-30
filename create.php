@@ -1,9 +1,17 @@
 <?php
 include_once 'config/Database.php';
 include_once 'classes/Product.php';
+include_once 'classes/Auth.php';
 
 $database = new Database();
 $conn = $database->getConnection();
+$auth = new Auth($conn);
+session_start();
+
+if (!$auth->isAdmin()) {
+    header("Location: index.php");
+    exit();
+}
 
 $product = new Product($conn);
 

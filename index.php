@@ -1,9 +1,18 @@
 <?php
 include_once 'config/Database.php';
 include_once 'classes/Product.php';
+include_once 'classes/Auth.php';
 
 $database = new Database();
 $conn = $database->getConnection();
+
+$auth = new Auth($conn);
+session_start();
+
+if (!$auth->isLoggedIn()) {
+    header("Location: login.php");
+    exit();
+}
 
 $product = new Product($conn);
 
@@ -14,7 +23,6 @@ if ($search) {
     $stmt = $product->read();
 }
 $num = $stmt->rowCount();
-
 ?>
 
 <?php include 'includes/header.php'; ?>
@@ -32,12 +40,14 @@ $num = $stmt->rowCount();
             </div>
         </form>
 
-        <a href="create.php" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Barang
-        </a>
+        <?php if ($auth->isAdmin()): ?>
+            <a href="create.php" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Barang
+            </a>
+        <?php endif; ?>
     </div>
 
     <?php if ($num > 0): ?>
@@ -48,7 +58,9 @@ $num = $stmt->rowCount();
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Barang</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <?php if ($auth->isAdmin()): ?>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -67,8 +79,10 @@ $num = $stmt->rowCount();
                                 <div class="text-sm text-gray-900">Rp <?php echo number_format($price, 2, ',', '.'); ?></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <a href="edit.php?id=<?php echo $id; ?>" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                <a href="delete.php?id=<?php echo $id; ?>" class="text-red-600 hover:text-red-900" onclick="return confirm('Yakin mau hapus?')">Hapus</a>
+                                <?php if ($auth->isAdmin()): ?>
+                                    <a href="edit.php?id=<?php echo $id; ?>" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                                    <a href="delete.php?id=<?php echo $id; ?>" class="text-red-600 hover:text-red-900" onclick="return confirm('Yakin mau hapus?')">Hapus</a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endwhile; ?>

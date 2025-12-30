@@ -32,10 +32,21 @@
                         <a href="index.php" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Daftar Barang
                         </a>
-                        <a href="create.php" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Tambah Barang
-                        </a>
+                        <?php if ($auth->isAdmin()): ?>
+                            <a href="create.php" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Tambah Barang
+                            </a>
+                        <?php endif; ?>
                     </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-700 mr-4">
+                        Halo, <b><?php echo $_SESSION['username'] ?? 'User'; ?></b>
+                        (<?php echo ucfirst($_SESSION['role'] ?? 'Guest'); ?>)
+                    </span>
+                    <a href="logout.php" class="text-red-600 hover:text-red-800 font-medium text-sm">
+                        Logout
+                    </a>
                 </div>
             </div>
         </div>
